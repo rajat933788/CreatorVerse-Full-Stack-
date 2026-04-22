@@ -4,6 +4,7 @@ import { useAuth } from '../context/AuthContext';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
+import api from '../services/api';
 
 const TABS = [
   { id: 'profile',      label: 'Profile',      icon: User     },
@@ -38,15 +39,57 @@ export default function SettingsPage() {
   const { theme, toggleTheme, isDark } = useTheme();
   const [tab, setTab] = useState('profile');
   const [profile, setProfile] = useState({ name: user?.name || '', email: user?.email || '', bio: user?.bio || '', location: user?.location || '' });
+  const [avatarPreview, setAvatarPreview] = useState(user?.avatar || null);
+  const avatarInputRef = React.useRef(null);
   const [platforms, setPlatforms] = useState(PLATFORMS);
-  const [notifications, setNotifications] = useState({
-    brandAlerts: true, taskReminders: true, aiSuggestions: true,
-    weeklyReport: true, newMessages: false, paymentReceived: true,
-  });
+  // Load notifications from MongoDB user object
+  const [notifications, setNotifications] = useState(
+    user?.notifications || {
+      brandAlerts: true, taskReminders: true, aiSuggestions: true,
+      weeklyReport: true, newMessages: false, paymentReceived: true,
+    }
+  );
 
-  const saveProfile = () => {
-    updateProfile({ name: profile.name, email: profile.email, bio: profile.bio, location: profile.location });
-    toast.success('Profile updated successfully');
+  const saveProfile = async () => {
+    try {
+      const res = await api.put('/auth/profile', {
+        name: profile.name, email: profile.email,
+        bio: profile.bio, location: profile.location,
+      });
+      updateProfile(res.data.user); // sync MongoDB response to local state
+      toast.success('Profile saved to account!');
+    } catch {
+      toast.error('Could not save profile.');
+    }
+  };
+
+  const handleAvatarChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { toast.error('Image must be smaller than 5MB'); return; }
+    const reader = new FileReader();
+    reader.onload = async (ev) => {
+      const base64 = ev.target.result;
+      setAvatarPreview(base64);
+      updateProfile({ avatar: base64 }); // instant UI update
+      try {
+        await api.put('/auth/profile', { avatar: base64 }); // save to MongoDB
+        toast.success('Profile photo saved!');
+      } catch {
+        toast.error('Could not save photo.');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const saveNotifications = async (updated) => {
+    setNotifications(updated);
+    updateProfile({ notifications: updated });
+    try {
+      await api.put('/auth/profile', { notifications: updated }); // save to MongoDB
+    } catch {
+      toast.error('Could not save notification settings.');
+    }
   };
   const togglePlatform = (id) => {
     setPlatforms(prev => prev.map(p => p.id === id ? { ...p, connected: !p.connected, handle: p.connected ? null : `@${id}user` } : p));
@@ -74,9 +117,15 @@ export default function SettingsPage() {
               <button
                 key={id}
                 onClick={() => setTab(id)}
-                className={clsx('sidebar-item w-full', tab === id ? 'sidebar-item-active' : 'sidebar-item-inactive')}
+                className={clsx(
+                  'w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 text-left',
+                  tab === id
+                    ? 'bg-brand-50 text-brand-700'
+                    : 'text-gray-600 hover:bg-gray-100 hover:text-gray-900'
+                )}
               >
-                <Icon size={17} /> {label}
+                <Icon size={17} className="flex-shrink-0" />
+                <span>{label}</span>
               </button>
             ))}
           </div>
@@ -203,11 +252,53 @@ export default function SettingsPage() {
           {tab === 'profile' && (
             <div className="card p-6 space-y-5">
               <h2 className="font-semibold text-gray-900">Profile Information</h2>
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-brand-400 to-purple-500 flex items-center justify-center text-white text-2xl font-bold">
-                  {profile.name[0] || 'U'}
+              {/* Avatar upload */}
+              <div className="flex items-center gap-5">
+                <div className="relative group cursor-pointer" onClick={() => avatarInputRef.current?.click()}>
+                  <div className="w-20 h-20 rounded-2xl overflow-hidden ring-2 ring-offset-2 ring-brand-200 flex-shrink-0">
+                    {avatarPreview
+                      ? <img src={avatarPreview} alt="Profile" className="w-full h-full object-cover" />
+                      : <div className="w-full h-full bg-gradient-to-br from-brand-400 to-purple-500 flex items-center justify-center text-white text-3xl font-bold">{profile.name[0]?.toUpperCase() || 'U'}</div>
+                    }
+                  </div>
+                  {/* Hover overlay */}
+                  <div className="absolute inset-0 rounded-2xl bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" /><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                  </div>
                 </div>
-                <button className="btn-secondary text-xs">Change Photo</button>
+                <div className="space-y-2">
+                  <button
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="btn-primary text-xs px-4"
+                  >
+                    Upload Photo
+                  </button>
+                  {avatarPreview && (
+                    <button
+                      onClick={async () => {
+                        setAvatarPreview(null);
+                        updateProfile({ avatar: '' });
+                        try {
+                          await api.put('/auth/profile', { avatar: '' }); // remove from MongoDB
+                          toast.success('Photo removed');
+                        } catch {
+                          toast.error('Could not remove photo.');
+                        }
+                      }}
+                      className="block btn-secondary text-xs px-4 text-red-500 border-red-200 hover:bg-red-50"
+                    >
+                      Remove Photo
+                    </button>
+                  )}
+                  <p className="text-xs text-gray-400">JPG, PNG or GIF · Max 5MB</p>
+                </div>
+                <input
+                  ref={avatarInputRef}
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={handleAvatarChange}
+                />
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
@@ -285,7 +376,7 @@ export default function SettingsPage() {
                         <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
                       </div>
                       <button
-                        onClick={() => setNotifications(p => ({ ...p, [key]: !p[key] }))}
+                        onClick={() => saveNotifications({ ...notifications, [key]: !notifications[key] })}
                         className={clsx('w-11 h-6 rounded-full transition-colors relative flex-shrink-0',
                           val ? 'bg-brand-600' : 'bg-gray-200'
                         )}

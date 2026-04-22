@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import { AuthProvider, useAuth } from './context/AuthContext';
+import { ThemeProvider } from './context/ThemeContext';
 
 import AppLayout from './components/layout/AppLayout';
 import LoginPage from './pages/LoginPage';
@@ -31,33 +32,43 @@ function PublicRoute({ children }) {
   return user ? <Navigate to="/dashboard" replace /> : children;
 }
 
+// Wrap ThemeProvider inside auth so it can receive user from MongoDB
+function AppWithTheme() {
+  const { user, updateProfile } = useAuth();
+  return (
+    <ThemeProvider user={user} updateProfile={updateProfile}>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/login"    element={<PublicRoute><LoginPage /></PublicRoute>} />
+          <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
+          <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
+            <Route index element={<Navigate to="/dashboard" replace />} />
+            <Route path="dashboard"   element={<DashboardPage />} />
+            <Route path="analytics"   element={<AnalyticsPage />} />
+            <Route path="crm"         element={<CRMPage />} />
+            <Route path="team"        element={<TeamPage />} />
+            <Route path="marketplace" element={<MarketplacePage />} />
+            <Route path="ai-insights" element={<AIInsightsPage />} />
+            <Route path="settings"    element={<SettingsPage />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          style: { borderRadius: '12px', fontSize: '14px', fontFamily: 'Inter' },
+          success: { iconTheme: { primary: '#4f46e5', secondary: '#fff' } },
+        }}
+      />
+    </ThemeProvider>
+  );
+}
+
 export default function App() {
   return (
     <QueryClientProvider client={queryClient}>
       <AuthProvider>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/login" element={<PublicRoute><LoginPage /></PublicRoute>} />
-            <Route path="/register" element={<PublicRoute><RegisterPage /></PublicRoute>} />
-            <Route path="/" element={<PrivateRoute><AppLayout /></PrivateRoute>}>
-              <Route index element={<Navigate to="/dashboard" replace />} />
-              <Route path="dashboard" element={<DashboardPage />} />
-              <Route path="analytics" element={<AnalyticsPage />} />
-              <Route path="crm" element={<CRMPage />} />
-              <Route path="team" element={<TeamPage />} />
-              <Route path="marketplace" element={<MarketplacePage />} />
-              <Route path="ai-insights" element={<AIInsightsPage />} />
-              <Route path="settings" element={<SettingsPage />} />
-            </Route>
-          </Routes>
-        </BrowserRouter>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            style: { borderRadius: '12px', fontSize: '14px', fontFamily: 'Inter' },
-            success: { iconTheme: { primary: '#4f46e5', secondary: '#fff' } },
-          }}
-        />
+        <AppWithTheme />
       </AuthProvider>
     </QueryClientProvider>
   );

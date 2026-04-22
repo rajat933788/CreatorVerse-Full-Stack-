@@ -8,7 +8,7 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('cv_token');
+    const token = localStorage.getItem('cv_token'); // JWT must stay in localStorage
     if (token) {
       api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
       fetchMe();
@@ -20,7 +20,7 @@ export function AuthProvider({ children }) {
   async function fetchMe() {
     try {
       const res = await api.get('/auth/me');
-      setUser(res.data.user);
+      setUser(res.data.user); // all data comes from MongoDB
     } catch {
       localStorage.removeItem('cv_token');
     } finally {
@@ -31,7 +31,7 @@ export function AuthProvider({ children }) {
   async function login(email, password) {
     const res = await api.post('/auth/login', { email, password });
     const { token, user } = res.data;
-    localStorage.setItem('cv_token', token);
+    localStorage.setItem('cv_token', token); // only token in localStorage
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
@@ -40,7 +40,7 @@ export function AuthProvider({ children }) {
   async function register(data) {
     const res = await api.post('/auth/register', data);
     const { token, user } = res.data;
-    localStorage.setItem('cv_token', token);
+    localStorage.setItem('cv_token', token); // only token in localStorage
     api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
     setUser(user);
     return user;
@@ -52,6 +52,7 @@ export function AuthProvider({ children }) {
     setUser(null);
   }
 
+  // Update local state only (caller is responsible for saving to MongoDB via API)
   function updateProfile(updates) {
     setUser(prev => prev ? { ...prev, ...updates } : prev);
   }

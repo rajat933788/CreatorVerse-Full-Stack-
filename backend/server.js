@@ -15,6 +15,7 @@ const crmRoutes         = require('./routes/crm');
 const teamRoutes        = require('./routes/team');
 const marketplaceRoutes = require('./routes/marketplace');
 const aiRoutes          = require('./routes/ai');
+const searchRoutes      = require('./routes/search');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -74,6 +75,7 @@ app.use('/api/crm',         crmRoutes);
 app.use('/api/team',        teamRoutes);
 app.use('/api/marketplace', marketplaceRoutes);
 app.use('/api/ai',          aiRoutes);
+app.use('/api/search',      searchRoutes);
 
 // ── API Docs stub ───────────────────────────────────────────────────────────
 app.get('/api', (req, res) => {

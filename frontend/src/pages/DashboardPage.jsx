@@ -183,7 +183,7 @@ export default function DashboardPage() {
         </div>
 
         {/* AI Snapshot */}
-        <div className="card p-5 bg-gradient-to-br from-brand-50 to-purple-50 border-brand-100">
+        <div className="card p-5 bg-gradient-to-br from-brand-50 to-purple-50 dark:from-brand-900/20 dark:to-purple-900/20 border-brand-100 dark:border-brand-800/30">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-7 h-7 rounded-lg bg-brand-100 flex items-center justify-center">
               <Sparkles size={14} className="text-brand-600" />
@@ -192,11 +192,11 @@ export default function DashboardPage() {
           </div>
           <div className="space-y-3">
             {[
-              { icon: Clock, text: 'Best time to post: Thursday 7–9 PM', color: 'text-amber-600 bg-amber-50' },
-              { icon: TrendingUp, text: 'Tech review content getting 34% higher engagement', color: 'text-emerald-600 bg-emerald-50' },
-              { icon: AlertCircle, text: 'Nike deal deadline in 3 days — take action', color: 'text-red-600 bg-red-50' },
+              { icon: Clock, text: 'Best time to post: Thursday 7–9 PM', color: 'text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-900/30' },
+              { icon: TrendingUp, text: 'Tech review content getting 34% higher engagement', color: 'text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30' },
+              { icon: AlertCircle, text: 'Nike deal deadline in 3 days — take action', color: 'text-red-600 dark:text-red-400 bg-red-50 dark:bg-red-900/30' },
             ].map(({ icon: Icon, text, color }) => (
-              <div key={text} className="flex items-start gap-2.5 bg-white rounded-xl p-3 border border-white/70">
+              <div key={text} className="flex items-start gap-2.5 bg-white dark:bg-gray-800/50 rounded-xl p-3 border border-white/70 dark:border-gray-700/50">
                 <div className={`w-6 h-6 rounded-md flex-shrink-0 flex items-center justify-center ${color}`}>
                   <Icon size={12} />
                 </div>
@@ -222,7 +222,7 @@ export default function DashboardPage() {
             {MOCK_TASKS.map(task => {
               const sc = statusConfig[task.status] || statusConfig.todo;
               return (
-                <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
+                <div key={task.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
                   <CheckCircle2 size={18} className="text-gray-300 flex-shrink-0" />
                   <div className="flex-1 min-w-0">
                     <p className="text-sm font-medium text-gray-900 truncate">{task.title}</p>
@@ -245,8 +245,8 @@ export default function DashboardPage() {
             {MOCK_DEALS.map(deal => {
               const sc = dealStatusConfig[deal.status] || dealStatusConfig.active;
               return (
-                <div key={deal.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 transition-colors">
-                  <div className="w-9 h-9 rounded-xl bg-gray-100 flex items-center justify-center text-sm font-bold text-gray-600 flex-shrink-0">
+                <div key={deal.id} className="flex items-center gap-3 p-3 rounded-xl hover:bg-gray-50 dark:hover:bg-gray-800/50 transition-colors">
+                  <div className="w-9 h-9 rounded-xl bg-gray-100 dark:bg-gray-800 flex items-center justify-center text-sm font-bold text-gray-600 dark:text-gray-300 flex-shrink-0">
                     {deal.brand[0]}
                   </div>
                   <div className="flex-1 min-w-0">

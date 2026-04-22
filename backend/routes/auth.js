@@ -87,9 +87,9 @@ router.put('/profile', auth,
   ],
   async (req, res) => {
     try {
-      const { name, email, bio, location } = req.body;
+      const { name, email, bio, location, avatar, theme, notifications } = req.body;
       const updates = {};
-      if (name)              updates.name = name;
+      if (name !== undefined)          updates.name          = name;
       if (email) {
         const existing = await User.findOne({ email });
         if (existing && String(existing._id) !== String(req.user._id)) {
@@ -97,8 +97,11 @@ router.put('/profile', auth,
         }
         updates.email = email;
       }
-      if (bio      !== undefined) updates.bio      = bio;
-      if (location !== undefined) updates.location = location;
+      if (bio           !== undefined) updates.bio           = bio;
+      if (location      !== undefined) updates.location      = location;
+      if (avatar        !== undefined) updates.avatar        = avatar;
+      if (theme         !== undefined) updates.theme         = theme;
+      if (notifications !== undefined) updates.notifications = notifications;
 
       const updated = await User.findByIdAndUpdate(req.user._id, updates, { new: true }).lean();
       res.json({ success: true, user: sanitize(updated) });
