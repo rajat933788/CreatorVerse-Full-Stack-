@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    font-family: 'Inter', system-ui, sans-serif;
+    background-color: #f8f9fc;
+    color: #111827;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* ── Dark mode body ── */
+  .dark body {
+    background-color: #0f1117;
+    color: #e5e7eb;
+  }
+
+  ::-webkit-scrollbar { width: 6px; height: 6px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+  .dark ::-webkit-scrollbar-thumb { background: #374151; }
+}
+
+@layer components {
+  /* ── Cards ── */
+  .card {
+    @apply bg-white rounded-2xl shadow-card border border-gray-100;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+  }
+  .dark .card {
+    @apply bg-gray-900 border-gray-700/60;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3), 0 4px 16px rgba(0,0,0,0.4);
+  }
+
+  .card-hover { @apply hover:shadow-card-hover transition-shadow duration-200; }
+
+  /* ── Buttons ── */
+  .btn-primary {
+    @apply bg-brand-600 hover:bg-brand-700 text-white font-medium px-4 py-2 rounded-xl transition-all duration-150 inline-flex items-center gap-2 text-sm;
+  }
+  .btn-secondary {
+    @apply bg-white hover:bg-gray-50 text-gray-700 font-medium px-4 py-2 rounded-xl border border-gray-200 transition-all duration-150 inline-flex items-center gap-2 text-sm;
+  }
+  .dark .btn-secondary {
+    @apply bg-gray-800 hover:bg-gray-700 text-gray-200 border-gray-600;
+  }
+  .btn-ghost {
+    @apply hover:bg-gray-100 text-gray-600 font-medium px-3 py-2 rounded-lg transition-all duration-150 inline-flex items-center gap-2 text-sm;
+  }
+  .dark .btn-ghost {
+    @apply hover:bg-gray-800 text-gray-400;
+  }
+
+  /* ── Badge ── */
+  .badge { @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium; }
+
+  /* ── Inputs ── */
+  .input {
+    @apply w-full px-3 py-2 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-white placeholder-gray-400 transition-all;
+  }
+  .dark .input {
+    @apply bg-gray-800 border-gray-600 text-gray-100 placeholder-gray-500;
+  }
+
+  /* ── Label ── */
+  .label { @apply block text-sm font-medium text-gray-700 mb-1; }
+  .dark .label { @apply text-gray-300; }
+
+  /* ── Stat card ── */
+  .stat-card { @apply card p-5 flex flex-col gap-3; }
+
+  /* ── Platform colours ── */
+  .platform-youtube  { @apply text-red-600 bg-red-50; }
+  .platform-instagram{ @apply text-purple-600 bg-purple-50; }
+  .platform-tiktok   { @apply text-cyan-600 bg-cyan-50; }
+  .platform-twitter  { @apply text-blue-500 bg-blue-50; }
+
+  /* ── Sidebar ── */
+  .sidebar-item { @apply flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-150 cursor-pointer; }
+  .sidebar-item-active   { @apply bg-brand-50 text-brand-700; }
+  .dark .sidebar-item-active { background-color: rgba(67,56,202,0.15); color: #a5b4fc; }
+  .sidebar-item-inactive { @apply text-gray-600 hover:bg-gray-100 hover:text-gray-900; }
+  .dark .sidebar-item-inactive { color: #9ca3af; }
+  .dark .sidebar-item-inactive:hover { background-color: #1f2937; color: #f3f4f6; }
+}
+
+/* ── Dark mode structural overrides ── */
+.dark aside {
+  background-color: #111827 !important;
+  border-color: #1f2937 !important;
+}
+.dark header {
+  background-color: #111827 !important;
+  border-color: #1f2937 !important;
+}
+.dark .bg-white    { background-color: #111827 !important; }
+.dark .bg-gray-50  { background-color: #0f1117 !important; }
+.dark .bg-gray-100 { background-color: #1f2937 !important; }
+.dark .border-gray-100 { border-color: #1f2937 !important; }
+.dark .border-gray-200 { border-color: #374151 !important; }
+.dark .border-gray-50  { border-color: #1f2937 !important; }
+
+.dark h1, .dark h2, .dark h3, .dark h4 { color: #f3f4f6; }
+.dark p  { color: #9ca3af; }
+.dark .text-gray-900 { color: #f3f4f6 !important; }
+.dark .text-gray-700 { color: #d1d5db !important; }
+.dark .text-gray-600 { color: #9ca3af !important; }
+.dark .text-gray-500 { color: #6b7280 !important; }
+
+.dark table thead      { background-color: #1f2937 !important; }
+.dark tbody tr:hover   { background-color: #1f2937 !important; }
+.dark select option    { background-color: #1f2937; color: #e5e7eb; }
+.dark ::-webkit-scrollbar-thumb { background: #374151; }
+
