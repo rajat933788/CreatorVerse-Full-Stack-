@@ -194,7 +194,6 @@ FRONTEND_URL=http://localhost:3000
 ## Authors
 
 - Rajat Bagh — LPU CSE
-- Aman Yadav — LPU CSE
 - Puneet (Supervisor) — LPU
 
 *Research prototype — CreatorVerse.AI Conference Paper, 2026*
