@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, Lock, Bell, Youtube, Instagram, Globe, Shield, CreditCard, Check, Moon, Sun, Monitor } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import useAuthStore from '../store/authStore';
 import { useTheme } from '../context/ThemeContext';
 import toast from 'react-hot-toast';
 import clsx from 'clsx';
@@ -35,7 +35,8 @@ const PLATFORMS = [
 ];
 
 export default function SettingsPage() {
-  const { user, updateProfile } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const updateProfile = useAuthStore(state => state.updateProfile);
   const { theme, toggleTheme, isDark } = useTheme();
   const [tab, setTab] = useState('profile');
   const [profile, setProfile] = useState({ name: user?.name || '', email: user?.email || '', bio: user?.bio || '', location: user?.location || '' });

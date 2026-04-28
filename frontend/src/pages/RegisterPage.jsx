@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import useAuthStore from '../store/authStore';
 import { Zap, Mail, Lock, User, Youtube, Instagram } from 'lucide-react';
 import toast from 'react-hot-toast';
 
 export default function RegisterPage() {
-  const { register } = useAuth();
+  const register = useAuthStore(state => state.register);
   const navigate = useNavigate();
   const [form, setForm] = useState({ name: '', email: '', password: '', plan: 'starter' });
   const [loading, setLoading] = useState(false);

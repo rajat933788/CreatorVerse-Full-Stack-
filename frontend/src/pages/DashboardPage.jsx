@@ -1,5 +1,5 @@
 import React from 'react';
-import { useQuery } from 'react-query';
+import useAnalyticsStore from '../store/analyticsStore';
 import {
   AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid
 } from 'recharts';
@@ -9,7 +9,7 @@ import {
 } from 'lucide-react';
 import { analyticsApi, crmApi, aiApi } from '../services/api';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../context/AuthContext';
+import useAuthStore from '../store/authStore';
 import clsx from 'clsx';
 
 const MOCK_TREND = [
@@ -73,13 +73,22 @@ const dealStatusConfig = {
 };
 
 export default function DashboardPage() {
-  const { user } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const { overview, loading, error, fetchOverview } = useAnalyticsStore();
 
-  const { data: overview } = useQuery('analytics-overview', analyticsApi.getOverview, {
-    onError: () => {},
-  });
+  React.useEffect(() => {
+    fetchOverview();
+  }, [fetchOverview]);
 
-  const stats = overview?.data?.data || {
+  if (loading && !overview) {
+    return <div className="flex justify-center items-center h-64"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600"></div></div>;
+  }
+
+  if (error) {
+    return <div className="p-4 m-6 text-red-500 bg-red-50 rounded-xl">{error}</div>;
+  }
+
+  const stats = overview || {
     totalViews: 284600,
     followers: 142800,
     engagementRate: 4.8,

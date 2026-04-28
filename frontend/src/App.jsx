@@ -2,7 +2,7 @@ import React from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { Toaster } from 'react-hot-toast';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { AuthProvider, useAuth } from './context/AuthContext';
+import useAuthStore from './store/authStore';
 import { ThemeProvider } from './context/ThemeContext';
 
 import AppLayout from './components/layout/AppLayout';
@@ -13,7 +13,7 @@ import AnalyticsPage from './pages/AnalyticsPage';
 import CRMPage from './pages/CRMPage';
 import TeamPage from './pages/TeamPage';
 import MarketplacePage from './pages/MarketplacePage';
-import AIInsightsPage from './pages/AIInsightsPage';
+import AIPage from './pages/AIPage';
 import SettingsPage from './pages/SettingsPage';
 
 const queryClient = new QueryClient({
@@ -21,20 +21,23 @@ const queryClient = new QueryClient({
 });
 
 function PrivateRoute({ children }) {
-  const { user, loading } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const loading = useAuthStore(state => state.loading);
   if (loading) return <div className="flex items-center justify-center h-screen"><div className="animate-spin rounded-full h-8 w-8 border-b-2 border-brand-600" /></div>;
   return user ? children : <Navigate to="/login" replace />;
 }
 
 function PublicRoute({ children }) {
-  const { user, loading } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const loading = useAuthStore(state => state.loading);
   if (loading) return null;
   return user ? <Navigate to="/dashboard" replace /> : children;
 }
 
 // Wrap ThemeProvider inside auth so it can receive user from MongoDB
 function AppWithTheme() {
-  const { user, updateProfile } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const updateProfile = useAuthStore(state => state.updateProfile);
   return (
     <ThemeProvider user={user} updateProfile={updateProfile}>
       <BrowserRouter>
@@ -48,7 +51,7 @@ function AppWithTheme() {
             <Route path="crm"         element={<CRMPage />} />
             <Route path="team"        element={<TeamPage />} />
             <Route path="marketplace" element={<MarketplacePage />} />
-            <Route path="ai-insights" element={<AIInsightsPage />} />
+            <Route path="ai"          element={<AIPage />} />
             <Route path="settings"    element={<SettingsPage />} />
           </Route>
         </Routes>
@@ -65,11 +68,15 @@ function AppWithTheme() {
 }
 
 export default function App() {
+  const fetchMe = useAuthStore(state => state.fetchMe);
+  
+  React.useEffect(() => {
+    fetchMe();
+  }, [fetchMe]);
+
   return (
     <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <AppWithTheme />
-      </AuthProvider>
+      <AppWithTheme />
     </QueryClientProvider>
   );
 }

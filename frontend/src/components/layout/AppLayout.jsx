@@ -5,7 +5,7 @@ import {
   Sparkles, Settings, LogOut, Bell, Search, Zap,
   UserCircle, ChevronDown, Moon, Sun, Check
 } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
+import useAuthStore from '../../store/authStore';
 import { useTheme } from '../../context/ThemeContext';
 import SearchBar from './SearchBar';
 
@@ -15,11 +15,12 @@ const navItems = [
   { to: '/crm',         icon: Briefcase,        label: 'Brand CRM'   },
   { to: '/team',        icon: Users,            label: 'Team & Tasks' },
   { to: '/marketplace', icon: ShoppingBag,      label: 'Marketplace' },
-  { to: '/ai-insights', icon: Sparkles,         label: 'AI Insights' },
+  { to: '/ai',          icon: Sparkles,         label: 'AI Assistant' },
 ];
 
 export default function AppLayout() {
-  const { user, logout } = useAuth();
+  const user = useAuthStore(state => state.user);
+  const logout = useAuthStore(state => state.logout);
   const { toggleTheme, isDark } = useTheme();
   const navigate = useNavigate();
   const [dropdownOpen, setDropdownOpen] = useState(false);
